@@ -1,0 +1,14 @@
+.idea/
+/jobs/dlf/metastore_db/
+derby.log
+__pycache__/
+.vscode/
+.zipped_packages/
+dist/
+
+# Environments
+.venv
+venv/
+ENV/
+env.bak/
+venv.bak/
