@@ -1,7 +1,10 @@
 # Parquet Viewer
-GUI application based on QT framework to view *.parquet files
+GUI application based on PyArrow + QT framework to view *.parquet files
 Requires python version 3.8+
 
+## Screenshots
+
+## Installation
 
 ## Development
 
@@ -24,7 +27,12 @@ To run the application
 poetry run parquet-viewer [path/to/parquet/file]
 ```
 
+To change the UI layout you need [QTDesigner](https://doc.qt.io/qt-5/qtdesigner-manual.html)
+Run `qt_designer/run_qt_designer.sh` script to launch it with required plugins loaded
+
 ## Attribution
-[PyQT Framework](https://doc.qt.io/qtforpython/)
-[PyArrow Library](https://arrow.apache.org/docs/python/index.html)
-[Floor icons created by Freepik - Flaticon](https://www.flaticon.com/free-icons/floor)
+* [PyQT Framework](https://doc.qt.io/qtforpython/)
+
+* [PyArrow Library](https://arrow.apache.org/docs/python/index.html)
+
+* [Floor icons created by Freepik - Flaticon](https://www.flaticon.com/free-icons/floor)
