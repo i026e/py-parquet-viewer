@@ -6,6 +6,7 @@ import lark
 import pyarrow as pa
 
 from PyQt5 import uic
+from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QKeySequence
 
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QMessageBox, QShortcut
@@ -19,7 +20,7 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 class ParquetViewerGUI(QMainWindow):
-    UI_FILE = os.path.join(SCRIPT_DIR, "parquet_viewer.ui")
+    UI_FILE = os.path.join(SCRIPT_DIR, "ui", "parquet_viewer.ui")
     PAGE_SIZES = [20, 40, 80]
 
     def __init__(self):
@@ -48,6 +49,8 @@ class ParquetViewerGUI(QMainWindow):
         self.filtersApplyButton.clicked.connect(self.applyFilters)
         self.filtersEdit.returnPressed.connect(self.applyFilters)
 
+        self.tableView.installEventFilter(self)
+
     def setupPageBox(self) -> None:
         self.pageSizeBox.addItems(str(s) for s in self.PAGE_SIZES)
         self.pageSizeBox.setCurrentIndex(0)
@@ -61,6 +64,7 @@ class ParquetViewerGUI(QMainWindow):
             self.pageBox.setMaximum(max(1, self.parquet_table.num_batches))
 
             self.pageBox.setValue(1)
+            self.pageBox.setEnabled(True)
             self.loadCurrentPage()
 
     def updatePageSize(self) -> None:
@@ -141,6 +145,17 @@ class ParquetViewerGUI(QMainWindow):
         msg.setDetailedText(get_details())
 
         msg.show()
+
+    def eventFilter(self, source, event) -> bool:
+        if (source == self.tableView) and (event.type() == QEvent.KeyPress) and event.matches(QKeySequence.Copy):
+            self.copySelection()
+            return True
+        return super().eventFilter(source, event)
+
+    def copySelection(self) -> None:
+        selection =self.tableView.selectedIndexes()
+        selected_data = self.parquet_model.getSelectionData(selection)
+        QApplication.clipboard().setText(selected_data)
 
 
 def run_app(qt_args: List[str], parquet_file: Optional[str] = None) -> None:

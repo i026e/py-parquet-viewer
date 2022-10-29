@@ -1,11 +1,15 @@
-from typing import Any
-from PyQt5.QtCore import pyqtSlot, QAbstractTableModel, Qt, QVariant, QModelIndex, pyqtSignal
+from collections import defaultdict
+from typing import Any, Union, Optional, List
+from PyQt5.QtCore import QAbstractTableModel, Qt, QVariant, QModelIndex
 
 
 from parquet_viewer.parquet.parquet_table import ParquetTable
+from parquet_viewer.parquet.parquet_to_json import ExtendedJSONEncoder
 
 
 class ParquetTableModel(QAbstractTableModel):
+    MAX_STR_LEN = 256
+
     def __init__(self, parquet_table: ParquetTable) -> None:
         super().__init__()
 
@@ -33,10 +37,11 @@ class ParquetTableModel(QAbstractTableModel):
     def data(self, index: QModelIndex, role: int = ...) -> Any:
         if index.isValid():
             if role == Qt.DisplayRole or role == Qt.EditRole:
-                value = self.parquet_data[index.row()].get(self.column_headers[index.column()])
-                if value is not None and not isinstance(value, (str, int, float)):
-                    value = str(value)
-                return value
+                return self.getCellData(
+                    index.row(),
+                    index.column(),
+                    shorten=(role == Qt.DisplayRole)
+                )
 
     def flags(self, index) -> Any:
         return Qt.ItemIsSelectable|Qt.ItemIsEnabled|Qt.ItemIsEditable
@@ -51,3 +56,36 @@ class ParquetTableModel(QAbstractTableModel):
         self.endResetModel()
 
         return page
+
+    def getCellData(self, row: int, col: int, shorten: bool) -> Optional[Union[str, int, float]]:
+        value = self.parquet_data[row].get(self.column_headers[col])
+
+        if value is not None and not isinstance(value, (str, int, float)):
+            value = str(value)
+
+        if shorten and isinstance(value, str) and (len(value) > self.MAX_STR_LEN):
+            value = value[:self.MAX_STR_LEN] + "..."
+
+        return value
+
+    def getSelectionData(self, indices: List[QModelIndex]) -> Optional[str]:
+        if not indices:
+            return None
+
+        json_encoder = ExtendedJSONEncoder(indent=2)
+
+        # if len(indices) == 1:
+        #     value = self.parquet_data[indices[0].row()].get(self.column_headers[indices[0].column()])
+        #     return json_encoder.encode(value)
+
+        data = defaultdict(dict)
+        for index in indices:
+            row = index.row()
+            col = index.column()
+
+            row_name = self.start_row_header + row
+            col_name = self.column_headers[col]
+
+            data[row_name][col_name] = self.parquet_data[row].get(col_name)
+
+        return json_encoder.encode(data)

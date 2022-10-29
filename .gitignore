@@ -4,7 +4,9 @@ derby.log
 __pycache__/
 .vscode/
 .zipped_packages/
+build/
 dist/
+*.spec
 
 # Environments
 .venv

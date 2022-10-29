@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Parquet Viewer</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>floor.png</normaloff>floor.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -126,6 +130,9 @@
           </item>
           <item>
            <widget class="RevertedSpinBox" name="pageBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="minimum">
              <number>1</number>
             </property>
