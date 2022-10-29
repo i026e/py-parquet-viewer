@@ -25,6 +25,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 parquet-viewer = "parquet_viewer.__main__:main"
+build-exe = "build-exe:main"
 
 [tool.poetry.build]
 script = "build_exe.sh"

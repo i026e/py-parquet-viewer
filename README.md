@@ -23,12 +23,29 @@ poetry install
 ```
 
 To run the application
+
 ```shell
 poetry run parquet-viewer [path/to/parquet/file]
+# OR
+./parquet-viewer [path/to/parquet/file]
 ```
 
+### QTDesigner
 To change the UI layout you need [QTDesigner](https://doc.qt.io/qt-5/qtdesigner-manual.html)
+
 Run `qt_designer/run_qt_designer.sh` script to launch it with required plugins loaded
+
+### Build WHL
+
+```shell
+poetry build
+```
+
+### Build EXE
+
+```shell
+poetry run build-exe
+```
 
 ## Attribution
 * [PyQT Framework](https://doc.qt.io/qtforpython/)

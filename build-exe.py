@@ -27,7 +27,7 @@ params = [
 
     f"--icon={os.path.join(SCRIPT_DIR, 'parquet_viewer/qt/ui/floor.png')}",
     "--name=parquet-viewer",
-    "parquet_viewer.py",
+    "parquet-viewer.py",
 
 ]
 
@@ -88,22 +88,23 @@ TO_REMOVE = [
 
     "libgtk-3*",
 
-    os.path.join(DIST_DIR, "libarrow.*"),
-    os.path.join(DIST_DIR, "libarrow_dataset.*"),
-    os.path.join(DIST_DIR, "libarrow_python.*"),
-    os.path.join(DIST_DIR, "libparquet.*"),
-    os.path.join(DIST_DIR, "pyarrow", "libarrow_flight.*"),
+    "parquet-viewer/libarrow.*",
+    "parquet-viewer/libarrow_dataset.*",
+    "parquet-viewer/libarrow_python.*",
+    "parquet-viewer/libparquet.*",
+    "pyarrow/libarrow_flight.*",
 
-    os.path.join(DIST_DIR, "libstdc++.*"),
+    "parquet-viewer/libstdc++.*",
 ]
 
 
 def clean_up(dist_dir: str, to_remove: list) -> None:
     to_remove = ["*" + v for v in to_remove]
 
-    def check_delete(folder: str, file_name:str) -> bool:
+    def check_delete(folder: str, file_name: str) -> bool:
+        file_path = os.path.join(folder, file_name)
+
         for mask in to_remove:
-            file_path = os.path.join(folder, file_name)
             if fnmatch.fnmatch(file_path, mask):
                 print("Deleting file", file_path)
                 os.unlink(file_path)
@@ -116,8 +117,10 @@ def clean_up(dist_dir: str, to_remove: list) -> None:
 
 
 def main() -> None:
-    #PyInstaller.__main__.run(params)
+    print("Executable file will be created in", DIST_DIR, "folder")
+    PyInstaller.__main__.run(params)
     clean_up(DIST_DIR, TO_REMOVE)
+    print("Done")
 
 
 if __name__ == "__main__":
