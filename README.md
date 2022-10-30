@@ -35,10 +35,12 @@ pip3 install https://github.com/i026e/py-parquet-viewer/releases/download/v0.1.0
 
 Viewer supports filters in SQL-like syntax:
 
-| `column is null`, `column is not null` | applicable for columns of any type, supported for structs and lists |
+| |                                                                            |
+|---|----------------------------------------------------------------------------|
+| `column is null`, `column is not null` | applicable for columns of any type, supported for structs and lists        |
 | `column ~ '%substring%'` | select rows containing specified substring -- only for string type columns |
-| `column = true`, `column = false` | for boolean type columns |
-| `column == 123.123`, `column > 123`, `column >= 123`, `column < 123`, `column <= 123` | for string and number columns |
+| `column = true`, `column = false` | for boolean type columns                                                   |
+| `column == 123.123`, `column > 123`, `column >= 123`, `column < 123`, `column <= 123` | for string and number columns                                              |
 
 ## Development
 
