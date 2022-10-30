@@ -3,8 +3,17 @@ GUI application based on PyArrow + QT framework to view *.parquet files
 Requires python version 3.8+
 
 ## Screenshots
+Data tab
+![data tab](screenshots/data.png)
+
+Schema tab
+![data tab](screenshots/schema.png)
 
 ## Installation
+
+
+## Usage
+### Filters
 
 ## Development
 

@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, Union, Optional, List
+from typing import Any, Optional, List
 from PyQt5.QtCore import QAbstractTableModel, Qt, QVariant, QModelIndex
 
 
@@ -9,6 +9,9 @@ from parquet_viewer.parquet.parquet_to_json import ExtendedJSONEncoder
 
 class ParquetTableModel(QAbstractTableModel):
     MAX_STR_LEN = 256
+
+    CONVERT_TO_STR = (bool,)
+    NOT_CONVERT_TO_STR = (str, int, float)
 
     def __init__(self, parquet_table: ParquetTable) -> None:
         super().__init__()
@@ -49,7 +52,6 @@ class ParquetTableModel(QAbstractTableModel):
     def setPage(self, page: int) -> int:
         self.beginResetModel()
 
-        page = max(0, min(page, self.parquet_table.num_batches - 1))
         self.parquet_data = self.parquet_table.get_data(page)
         self.start_row_header = self.parquet_table.get_batch_first_row_number(page) + 1
 
@@ -57,14 +59,16 @@ class ParquetTableModel(QAbstractTableModel):
 
         return page
 
-    def getCellData(self, row: int, col: int, shorten: bool) -> Optional[Union[str, int, float]]:
+    def getCellData(self, row: int, col: int, shorten: bool) -> Optional[str]:
         value = self.parquet_data[row].get(self.column_headers[col])
 
-        if value is not None and not isinstance(value, (str, int, float)):
-            value = str(value)
+        if value is None:
+            return None
 
-        if shorten and isinstance(value, str) and (len(value) > self.MAX_STR_LEN):
-            value = value[:self.MAX_STR_LEN] + "..."
+        value = str(value)
+
+        if shorten and (len(value) > self.MAX_STR_LEN):
+            value = value[:self.MAX_STR_LEN - 3] + "..."
 
         return value
 
@@ -79,7 +83,7 @@ class ParquetTableModel(QAbstractTableModel):
         #     return json_encoder.encode(value)
 
         data = defaultdict(dict)
-        for index in indices:
+        for index in sorted(indices, key=lambda i: (i.row(), i.column())):
             row = index.row()
             col = index.column()
 

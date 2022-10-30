@@ -60,9 +60,11 @@ class ParquetViewerGUI(QMainWindow):
 
     def updatePages(self) -> None:
         if self.parquet_table is not None:
-            self.totalPages.setText(str(self.parquet_table.num_batches))
-            self.pageBox.setMaximum(max(1, self.parquet_table.num_batches))
+            self.totalPages.setText(str(max(1, self.parquet_table.num_batches)))
 
+            num_pages = self.parquet_table.num_batches
+
+            self.pageBox.setMaximum(max(1, num_pages))
             self.pageBox.setValue(1)
             self.pageBox.setEnabled(True)
             self.loadCurrentPage()

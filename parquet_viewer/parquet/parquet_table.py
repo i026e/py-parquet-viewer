@@ -106,10 +106,13 @@ class ParquetTable:
         return self.lazy_table.schema.to_string()
 
     def get_data(self, batch: int) -> list:
+        if batch < 0 or batch >= self.num_batches:
+            return []
+
         return self.lazy_batches[batch].to_pylist()
 
     def get_batch_first_row_number(self, batch: int) -> int:
-        if batch == 0:
+        if batch <= 0 or batch >= self.num_batches:
             return 0
 
         return sum(self.lazy_batches[b].num_rows for b in range(0, batch))

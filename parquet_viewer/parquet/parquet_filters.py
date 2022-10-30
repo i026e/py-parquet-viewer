@@ -17,8 +17,8 @@ and_or_expression: expression and_or_op expression
 unary_expression: column unary_op
 binary_expression: column binary_op value
 
-column: CNAME | DOUBLE_QUOTED_STRING
-value: number | SINGLE_QUOTED_STRING
+column: COLUMN_NAME | DOUBLE_QUOTED_STRING
+value: number | SINGLE_QUOTED_STRING | BOOLEAN
 number: SIGNED_FLOAT | SIGNED_INT
 
 unary_op: IS_NULL | IS_NOT_NULL
@@ -50,12 +50,16 @@ EQUAL: _WHITESPACE* ( "==" | "=" ) _WHITESPACE*
 SINGLE_QUOTED_STRING: _SINGLE_QUOTE _STRING_ESC_INNER _SINGLE_QUOTE
 DOUBLE_QUOTED_STRING: _DOUBLE_QUOTE _STRING_ESC_INNER _DOUBLE_QUOTE
 
+BOOLEAN: TRUE | FALSE
+TRUE: _WHITESPACE* "true"i _WHITESPACE*
+FALSE: _WHITESPACE* "false"i _WHITESPACE*
+
 _SINGLE_QUOTE: "'"
 _DOUBLE_QUOTE: "\\""
 
 %import common.SIGNED_FLOAT
 %import common.SIGNED_INT
-%import common.CNAME -> CNAME
+%import common.CNAME -> COLUMN_NAME
 %import common._STRING_ESC_INNER
 %import common.WS -> _WHITESPACE
 """
@@ -73,12 +77,16 @@ class TypeTransformer(Transformer):
             tok = tok.update(value=float(tok))
         return tok
 
+    def BOOLEAN(self, tok):
+        if tok.value and isinstance(tok.value, str):
+            tok = tok.update(value=(str(tok).lower() == "true"))
+        return tok
+
     def SINGLE_QUOTED_STRING(self, tok):
         return tok.update(value=tok.strip("'"))
 
     def DOUBLE_QUOTED_STRING(self, tok):
         return tok.update(value=tok.strip('"'))
-
 
 
 class UnexpectedColumn(UnexpectedToken):
@@ -119,50 +127,29 @@ UNARY_OPERATORS = {
 }
 
 
+_BASE_BINARY_OPERATORS = {
+    "EQUAL": pc.equal,
+    "NOT_EQUAL": pc.not_equal,
+    "LESS_THAN": pc.less,
+    "LESS_THAN_OR_EQUAL": pc.less_equal,
+    "GREATER": pc.greater,
+    "GREATER_THAN_OR_EQUAL": pc.greater_equal
+}
+
+
 BINARY_OPERATORS_FOR_COLUMN_TYPES = {
+    "bool": {
+        "EQUAL": pc.equal,
+        "NOT_EQUAL": pc.not_equal,
+    },
     "string": {
-        "EQUAL": pc.equal,
-        "NOT_EQUAL": pc.not_equal,
-        "LESS_THAN": pc.less,
-        "LESS_THAN_OR_EQUAL": pc.less_equal,
-        "GREATER": pc.greater,
-        "GREATER_THAN_OR_EQUAL": pc.greater_equal,
-
+        **_BASE_BINARY_OPERATORS,
         "LIKE": pc.match_like
-
     },
-    "double": {
-        "EQUAL": pc.equal,
-        "NOT_EQUAL": pc.not_equal,
-        "LESS_THAN": pc.less,
-        "LESS_THAN_OR_EQUAL": pc.less_equal,
-        "GREATER": pc.greater,
-        "GREATER_THAN_OR_EQUAL": pc.greater_equal
-    },
-    "int": {
-        "EQUAL": pc.equal,
-        "NOT_EQUAL": pc.not_equal,
-        "LESS_THAN": pc.less,
-        "LESS_THAN_OR_EQUAL": pc.less_equal,
-        "GREATER": pc.greater,
-        "GREATER_THAN_OR_EQUAL": pc.greater_equal
-    },
-    "float": {
-        "EQUAL": pc.equal,
-        "NOT_EQUAL": pc.not_equal,
-        "LESS_THAN": pc.less,
-        "LESS_THAN_OR_EQUAL": pc.less_equal,
-        "GREATER": pc.greater,
-        "GREATER_THAN_OR_EQUAL": pc.greater_equal
-    },
-    "datetime": {
-        "EQUAL": pc.equal,
-        "NOT_EQUAL": pc.not_equal,
-        "LESS_THAN": pc.less,
-        "LESS_THAN_OR_EQUAL": pc.less_equal,
-        "GREATER": pc.greater,
-        "GREATER_THAN_OR_EQUAL": pc.greater_equal
-    }
+    "double": _BASE_BINARY_OPERATORS,
+    "int64": _BASE_BINARY_OPERATORS,
+    "float": _BASE_BINARY_OPERATORS,
+    "datetime": _BASE_BINARY_OPERATORS,
 }
 
 
