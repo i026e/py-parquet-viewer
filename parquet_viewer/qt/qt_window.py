@@ -45,6 +45,8 @@ class ParquetViewerGUI(QMainWindow):
         self.actionOpen.triggered.connect(self.openFile)
         self.actionQuit.triggered.connect(self.close)
         self.actionAbout.triggered.connect(self.showAbout)
+        self.actionExportJSON.triggered.connect(self.exportParquet)
+        self.actionExportCSV.triggered.connect(self.exportParquet)
 
         self.filtersApplyButton.clicked.connect(self.applyFilters)
         self.filtersEdit.returnPressed.connect(self.applyFilters)
@@ -158,6 +160,9 @@ class ParquetViewerGUI(QMainWindow):
         selection =self.tableView.selectedIndexes()
         selected_data = self.parquet_model.getSelectionData(selection)
         QApplication.clipboard().setText(selected_data)
+
+    def exportParquet(self) -> None:
+        self.showError("Not implemented")
 
 
 def run_app(qt_args: List[str], parquet_file: Optional[str] = None) -> None:

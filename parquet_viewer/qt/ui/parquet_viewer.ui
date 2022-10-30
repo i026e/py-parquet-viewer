@@ -261,8 +261,8 @@
      <property name="title">
       <string>Export As</string>
      </property>
-     <addaction name="actionCSV"/>
-     <addaction name="actionJSON"/>
+     <addaction name="actionExportCSV"/>
+     <addaction name="actionExportJSON"/>
     </widget>
     <addaction name="actionOpen"/>
     <addaction name="separator"/>
@@ -312,12 +312,12 @@
     <string>About</string>
    </property>
   </action>
-  <action name="actionJSON">
+  <action name="actionExportJSON">
    <property name="text">
     <string>JSON</string>
    </property>
   </action>
-  <action name="actionCSV">
+  <action name="actionExportCSV">
    <property name="text">
     <string>CSV</string>
    </property>
