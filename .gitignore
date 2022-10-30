@@ -8,6 +8,7 @@ build/
 dist/
 *.spec
 *.parquet
+screenshots/Thumbs.db*
 
 # Environments
 .venv
