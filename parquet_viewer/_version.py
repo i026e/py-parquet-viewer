@@ -1,7 +1,8 @@
 APP_NAME = "Parquet Viewer"
 APP_VERSION = "0.1.0"
 APP_LICENSE = "GPLv3"
-APP_AUTHORS = "[Pavel &lt;<a href='https://github.com/i026e/'>GitHub</a>&gt;; ]"
+WEB_PAGE = "<a href='https://github.com/i026e/py-parquet-viewer/releases'>GitHub</a>"
+APP_AUTHORS = "[Pavel K. &lt;<a href='mailto:klev.paul@gmail.com'>klev.paul@gmail.com</a>&gt;; ]"
 
 
 def get_qt_version() -> str:
@@ -42,6 +43,10 @@ def get_about() -> str:
 
 <tr>
 <td>Version:</td><td>{APP_VERSION}</td>
+</tr>
+
+<tr>
+<td>Web:</td><td>{WEB_PAGE}</td>
 </tr>
 
 <tr>
