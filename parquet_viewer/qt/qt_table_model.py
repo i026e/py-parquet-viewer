@@ -2,9 +2,8 @@ from collections import defaultdict
 from typing import Any, Optional, List
 from PyQt5.QtCore import QAbstractTableModel, Qt, QVariant, QModelIndex
 
-
 from parquet_viewer.parquet.parquet_table import ParquetTable
-from parquet_viewer.parquet.parquet_to_json import ExtendedJSONEncoder
+from parquet_viewer.parquet.parquet_conversion import ExtendedJSONEncoder
 
 
 class ParquetTableModel(QAbstractTableModel):
@@ -47,7 +46,7 @@ class ParquetTableModel(QAbstractTableModel):
                 )
 
     def flags(self, index) -> Any:
-        return Qt.ItemIsSelectable|Qt.ItemIsEnabled|Qt.ItemIsEditable
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
 
     def setPage(self, page: int) -> int:
         self.beginResetModel()

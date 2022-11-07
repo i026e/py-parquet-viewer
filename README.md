@@ -7,14 +7,17 @@ Data tab
 ![data tab](screenshots/data.png)
 
 Schema tab
-![data tab](screenshots/schema.png)
+![schema tab](screenshots/schema.png)
+
+Export
+![export](screenshots/export.png)
 
 ## Installation
 ### Windows
 Download and extract zip archive for Windows x64 from [Releases page](https://github.com/i026e/py-parquet-viewer/releases)
 
 Launch `parquet-viewer.exe` file
-![data tab](screenshots/win-exe-file.png)
+![win-exe](screenshots/win-exe-file.png)
 
 ### As python package
 _[Optionally] create virtual environment_

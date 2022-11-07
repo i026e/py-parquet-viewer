@@ -17,6 +17,9 @@
    <iconset>
     <normaloff>floor.png</normaloff>floor.png</iconset>
   </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -205,7 +208,7 @@
           <item>
            <widget class="QLineEdit" name="filtersEdit">
             <property name="placeholderText">
-             <string>Filter:</string>
+             <string>Filters:</string>
             </property>
            </widget>
           </item>
@@ -257,7 +260,10 @@
     <property name="title">
      <string>File</string>
     </property>
-    <widget class="QMenu" name="menuExport_As">
+    <widget class="QMenu" name="menuExport">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="title">
       <string>Export As</string>
      </property>
@@ -266,7 +272,7 @@
     </widget>
     <addaction name="actionOpen"/>
     <addaction name="separator"/>
-    <addaction name="menuExport_As"/>
+    <addaction name="menuExport"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>

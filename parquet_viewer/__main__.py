@@ -5,7 +5,6 @@ from parquet_viewer.qt.qt_window import run_app
 
 
 def parse_args() -> Tuple[Any, List]:
-
     parser = argparse.ArgumentParser()
     parser.add_argument('parquet_file', action='store', nargs='?', default=None, type=str)  # positional argument
 
