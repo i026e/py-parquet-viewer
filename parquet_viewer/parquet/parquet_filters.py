@@ -6,7 +6,6 @@ import pyarrow.compute as pc
 from lark import Lark, Transformer
 from lark.exceptions import UnexpectedToken
 
-
 grammar = """
 ?start: expression
 expression:  unary_expression | binary_expression | grouped_expression | and_or_expression
@@ -126,7 +125,6 @@ UNARY_OPERATORS = {
     "IS_NOT_NULL": pc.true_unless_null
 }
 
-
 _BASE_BINARY_OPERATORS = {
     "EQUAL": pc.equal,
     "NOT_EQUAL": pc.not_equal,
@@ -135,7 +133,6 @@ _BASE_BINARY_OPERATORS = {
     "GREATER": pc.greater,
     "GREATER_THAN_OR_EQUAL": pc.greater_equal
 }
-
 
 BINARY_OPERATORS_FOR_COLUMN_TYPES = {
     "bool": {
@@ -152,12 +149,10 @@ BINARY_OPERATORS_FOR_COLUMN_TYPES = {
     "datetime": _BASE_BINARY_OPERATORS,
 }
 
-
 AND_OR_OPERATORS = {
     "AND": pc.and_,
     "OR": pc.or_
 }
-
 
 
 class PyArrowFilterBuilder(Transformer):
