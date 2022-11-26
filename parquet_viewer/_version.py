@@ -1,5 +1,5 @@
 APP_NAME = "Parquet Viewer"
-APP_VERSION = "0.1.0"
+APP_VERSION = "0.2.1"
 APP_LICENSE = "GPLv3"
 WEB_PAGE = "<a href='https://github.com/i026e/py-parquet-viewer/releases'>GitHub</a>"
 APP_AUTHORS = "[Pavel K. &lt;<a href='mailto:klev.paul@gmail.com'>klev.paul@gmail.com</a>&gt;; ]"
@@ -33,42 +33,3 @@ def get_py_version() -> str:
 def get_pyarrow_version() -> str:
     import pyarrow
     return pyarrow.__version__
-
-
-def get_about() -> str:
-    return f"""<b>{APP_NAME}</b>
-
-<br/>
-<table>
-
-<tr>
-<td>Version:</td><td>{APP_VERSION}</td>
-</tr>
-
-<tr>
-<td>Web:</td><td>{WEB_PAGE}</td>
-</tr>
-
-<tr>
-<td>Licence:</td><td>{APP_LICENSE}</td>
-</tr>
-
-<tr>
-<td>Authors:</td><td>{APP_AUTHORS}</td>
-</tr>
-
-</table>
-"""
-
-
-def get_details() -> str:
-    return f"""Platform: {get_platform()}
-Platform Version: {get_platform_version()}
-
-Python Version: {get_py_version()}
-
-QT Version: {get_qt_version()}
-PyQt Version: {get_py_qt_version()}
-
-PyArrow Version: {get_pyarrow_version()}
-"""

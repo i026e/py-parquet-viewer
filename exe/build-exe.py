@@ -1,11 +1,9 @@
-import json
 import os
 import shutil
 import subprocess
 
 import zipfile
 from sys import platform
-from typing import List, Optional
 import requests
 
 import PyInstaller.__main__
@@ -60,6 +58,7 @@ UPX_DIR = check_upx(WORK_DIR) if USE_UPX else ""
 
 PYINSTALLER_PARAMS = [
     f"--add-data={os.path.join(SCRIPT_DIR, '../parquet_viewer/qt/ui/parquet_viewer.ui')}{SEP}parquet_viewer/qt/ui",
+    f"--add-data={os.path.join(SCRIPT_DIR, '../parquet_viewer/qt/ui/parquet_export.ui')}{SEP}parquet_viewer/qt/ui",
     f"--add-binary={os.path.join(SCRIPT_DIR, '../parquet_viewer/qt/ui/floor.png')}{SEP}parquet_viewer/qt/ui",
 
     "--hidden-import=parquet_viewer.qt.widgets",

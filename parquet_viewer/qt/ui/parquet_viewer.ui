@@ -10,6 +10,9 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
   <property name="windowTitle">
    <string>Parquet Viewer</string>
   </property>
@@ -186,6 +189,9 @@
         </item>
         <item row="6" column="0">
          <widget class="QTableView" name="tableView">
+          <property name="contextMenuPolicy">
+           <enum>Qt::ActionsContextMenu</enum>
+          </property>
           <property name="sizeAdjustPolicy">
            <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
           </property>
@@ -239,7 +245,7 @@
        </attribute>
        <layout class="QGridLayout" name="gridLayout_5">
         <item row="0" column="0">
-         <widget class="QPlainTextEdit" name="infoEdit"/>
+         <widget class="QTextEdit" name="infoEdit"/>
         </item>
        </layout>
       </widget>
@@ -326,6 +332,11 @@
   <action name="actionExportCSV">
    <property name="text">
     <string>CSV</string>
+   </property>
+  </action>
+  <action name="actionCopyCell">
+   <property name="text">
+    <string>Copy</string>
    </property>
   </action>
  </widget>

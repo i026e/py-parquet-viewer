@@ -1,7 +1,6 @@
 import argparse
+import multiprocessing
 from typing import Tuple, Any, List
-
-from parquet_viewer.qt.qt_window import run_app
 
 
 def parse_args() -> Tuple[Any, List]:
@@ -13,9 +12,11 @@ def parse_args() -> Tuple[Any, List]:
 
 
 def main():
+    from parquet_viewer.qt.qt_window import run_app
     parsed_args, unparsed_args = parse_args()
     run_app(unparsed_args, parsed_args.parquet_file)
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     main()
