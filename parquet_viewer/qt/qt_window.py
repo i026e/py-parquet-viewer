@@ -1,6 +1,6 @@
 import functools
 import sys
-from typing import Optional, List
+from typing import Optional, List, Any
 
 import lark
 import pyarrow as pa
@@ -9,12 +9,12 @@ from PyQt5 import uic
 from PyQt5.QtCore import QEvent
 from PyQt5.QtGui import QKeySequence
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QShortcut
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QShortcut, QHeaderView
 
 from parquet_viewer.parquet.parquet_conversion import OutputFormat
 from parquet_viewer.parquet.parquet_table import ParquetTable
 from parquet_viewer._logger import log_error
-from parquet_viewer.qt.qt_utils import qt_show_error, qt_show_about
+from parquet_viewer.qt.qt_utils import qt_show_error, qt_show_about, create_html_table
 from parquet_viewer.qt.qt_export import ParquetExportDialog
 from parquet_viewer.qt.qt_table_model import ParquetTableModel
 from parquet_viewer.qt.ui import PARQUET_VIEWER_UI
@@ -23,6 +23,8 @@ from parquet_viewer.qt.ui import PARQUET_VIEWER_UI
 class ParquetViewerGUI(QMainWindow):
     UI_FILE = PARQUET_VIEWER_UI
     PAGE_SIZES = [20, 40, 80]
+
+    PARQUET_EXTENSION = ".parquet"
 
     def __init__(self):
         super().__init__()
@@ -36,9 +38,9 @@ class ParquetViewerGUI(QMainWindow):
         self.setupShortCuts()
         self.setupExport()
 
-    def getPageSize(self) -> int:
-        return self.PAGE_SIZES[self.pageSizeBox.currentIndex()]
+        self.setAcceptDrops(True)
 
+    # Set up window
     def setupShortCuts(self):
         filters_shortcut = QShortcut(QKeySequence("Ctrl+F"), self)
         filters_shortcut.activated.connect(self.filtersEdit.setFocus)
@@ -51,16 +53,11 @@ class ParquetViewerGUI(QMainWindow):
         self.filtersApplyButton.clicked.connect(self.applyFilters)
         self.filtersEdit.returnPressed.connect(self.applyFilters)
 
+        # allow copying cells
         self.tableView.installEventFilter(self)
-
-    def setupExport(self) -> None:
-        self.menuExport.setEnabled(False)
-
-        self.actionExportJSON.triggered.connect(functools.partial(self.exportParquet, OutputFormat.JSON))
-        self.actionExportCSV.triggered.connect(functools.partial(self.exportParquet, OutputFormat.CSV))
-
-    def enableExport(self) -> None:
-        self.menuExport.setEnabled(True)
+        # table context menu
+        self.tableView.addAction(self.actionCopyCell)
+        self.actionCopyCell.triggered.connect(self.copySelection)
 
     def setupPageBox(self) -> None:
         self.pageSizeBox.addItems(str(s) for s in self.PAGE_SIZES)
@@ -69,7 +66,22 @@ class ParquetViewerGUI(QMainWindow):
         self.pageSizeBox.currentIndexChanged.connect(self.updatePageSize)
         self.pageBox.valueChanged.connect(self.loadCurrentPage)
 
-    def updatePages(self) -> None:
+    # Update Window
+    def updateTabs(self) -> None:
+        if self.parquet_table is not None:
+            self.schemaEdit.clear()
+            self.schemaEdit.appendPlainText(self.parquet_table.schema)
+
+            self.infoEdit.clear()
+            self.infoEdit.setHtml(create_html_table(self.parquet_table.info, border=1, cell_spacing=4))
+
+            self.updatePagesBox()
+
+            # fix issue with horizontal headers width
+            self.tableView.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+            # self.tableView.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+
+    def updatePagesBox(self) -> None:
         if self.parquet_table is not None:
             self.totalPages.setText(str(max(1, self.parquet_table.num_batches)))
 
@@ -84,10 +96,15 @@ class ParquetViewerGUI(QMainWindow):
         if self.parquet_table is not None:
             page_size = self.getPageSize()
             self.parquet_table.batch_size = page_size
-            self.updatePages()
+            self.updatePagesBox()
+
+    # Load data
+    def loadCurrentPage(self) -> None:
+        page = self.pageBox.value()
+        self.parquet_model.setPage(page - 1)
 
     def openFile(self) -> None:
-        file_path = QFileDialog.getOpenFileName(self, "Open file", "", "Parquet files (*.parquet)")[0]
+        file_path = QFileDialog.getOpenFileName(self, "Open file", "", f"Parquet files (*{self.PARQUET_EXTENSION})")[0]
         if file_path:
             self.loadData(file_path)
 
@@ -97,13 +114,7 @@ class ParquetViewerGUI(QMainWindow):
             self.parquet_model = ParquetTableModel(self.parquet_table)
             self.tableView.setModel(self.parquet_model)
 
-            self.schemaEdit.clear()
-            self.schemaEdit.appendPlainText(self.parquet_table.schema)
-
-            self.infoEdit.clear()
-            self.infoEdit.appendPlainText(self.parquet_table.info)
-
-            self.updatePages()
+            self.updateTabs()
             self.loadCurrentPage()
             self.enableExport()
 
@@ -117,15 +128,12 @@ class ParquetViewerGUI(QMainWindow):
             log_error(e)
             qt_show_error(self, f"Cannot load file \n{parquet_file}\n", e)
 
-    def loadCurrentPage(self) -> None:
-        page = self.pageBox.value()
-        self.parquet_model.setPage(page - 1)
-
+    # Filters
     def applyFilters(self) -> None:
         filters = self.filtersEdit.text().strip()
         try:
             self.parquet_table.filters = filters
-            self.updatePages()
+            self.updateTabs()
         except (lark.exceptions.UnexpectedInput, lark.exceptions.VisitError) as e:
             log_error(e)
             qt_show_error(self, e)
@@ -133,9 +141,7 @@ class ParquetViewerGUI(QMainWindow):
             log_error(e)
             qt_show_error(self, "Unexpected Error", detail=e)
 
-    def showAbout(self) -> None:
-        qt_show_about(self)
-
+    # Copy data
     def eventFilter(self, source, event) -> bool:
         if (source == self.tableView) and (event.type() == QEvent.KeyPress) and event.matches(QKeySequence.Copy):
             self.copySelection()
@@ -147,6 +153,16 @@ class ParquetViewerGUI(QMainWindow):
         selected_data = self.parquet_model.getSelectionData(selection)
         QApplication.clipboard().setText(selected_data)
 
+    # Export
+    def setupExport(self) -> None:
+        self.menuExport.setEnabled(False)
+
+        self.actionExportJSON.triggered.connect(functools.partial(self.exportParquet, OutputFormat.JSON))
+        self.actionExportCSV.triggered.connect(functools.partial(self.exportParquet, OutputFormat.CSV))
+
+    def enableExport(self) -> None:
+        self.menuExport.setEnabled(True)
+
     def exportParquet(self, output_format: Optional[OutputFormat] = None) -> None:
         if self.parquet_table is not None:
             try:
@@ -155,6 +171,30 @@ class ParquetViewerGUI(QMainWindow):
             except Exception as e:
                 log_error(e)
                 qt_show_error(self, "Unexpected error", e)
+
+    # Drag and Drop
+    def getFilesFromDropEvent(self, event: Any) -> List[str]:
+        return [str(url.toLocalFile()) for url in event.mimeData().urls()]
+
+    def dragEnterEvent(self, event: Any) -> Any:
+        if event.mimeData().hasUrls():
+            paths = self.getFilesFromDropEvent(event)
+            if len(paths) == 1 and paths[0].endswith(self.PARQUET_EXTENSION):
+                return event.accept()
+
+        return event.ignore()
+
+    def dropEvent(self, event: Any) -> None:
+        paths = self.getFilesFromDropEvent(event)
+        if paths:
+            self.loadData(paths[0])
+
+    # Other
+    def showAbout(self) -> None:
+        qt_show_about(self)
+
+    def getPageSize(self) -> int:
+        return self.PAGE_SIZES[self.pageSizeBox.currentIndex()]
 
 
 def run_app(qt_args: List[str], parquet_file: Optional[str] = None) -> None:
